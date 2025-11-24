@@ -1,0 +1,16 @@
+// geoip-join.kql
+// Join failed logon events with geolocation watchlist
+
+let FailedLogons = 
+    SecurityEvent
+    | where EventID == 4625
+    | project TimeGenerated, IpAddress = RemoteIp;
+
+FailedLogons
+| join kind=leftouter (
+    GetWatchlist("geoip")
+    | project SearchKey, cityname, countryname, latitude, longitude
+) on $left.IpAddress == $right.SearchKey
+| summarize FailedAttempts = count()
+    by IpAddress, cityname, countryname, latitude, longitude
+| sort by FailedAttempts desc

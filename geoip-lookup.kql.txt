@@ -1,0 +1,6 @@
+// geoip-lookup.kql
+// Display contents of the geoip watchlist
+
+GetWatchlist("geoip")
+| project SearchKey, cityname, countryname, latitude, longitude
+| sort by countryname asc, cityname asc
